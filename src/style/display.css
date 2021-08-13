@@ -1,0 +1,109 @@
+/* .display1_1{
+    display: flex;
+    margin-left: 1rem;
+    justify-content: space-evenly;
+    margin-bottom: 2rem;
+    
+}
+
+.display1Ul{
+   height: 450px;
+    background-color: #073A91;
+    overflow-y: scroll;
+    color: #fff;
+    width:250px
+    
+}
+.display1list{
+
+    border-bottom: 1px solid gray;
+    padding:0.7rem;
+    width:230px;
+    font-size: 13px;
+
+   
+
+}
+
+.display1Table{
+    width:500px;
+ 
+   margin: 2.5rem 1.5rem;
+}
+
+.display1Top{
+    width:50%;
+    margin: auto;
+    text-align: center;
+}
+.display1Top span{
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-right: 1rem;
+}
+.Myradio{
+    margin-left: 2.5rem;
+
+   
+} */
+
+.display_d{
+    margin:1rem;
+   
+    display: flex;
+    justify-content: space-between;
+    /* border: 1px solid black; */
+        
+}
+
+
+.d1{
+ 
+    width:250px;
+    /* border: 1px solid black; */
+ 
+
+}
+.d1_1{
+    background-color: #073A91;
+    overflow-y: scroll;
+    height: 440px;
+    color: white;
+}
+
+.display1list{
+
+    border-bottom: 1px solid gray;
+    padding:0.7rem;
+    width:230px;
+    font-size: 13px;
+
+   
+
+}
+
+.d2{
+
+width: 450px;
+/* border: 1px solid black; */
+}
+
+.d3{
+
+width: 550px;
+
+/* border: 1px solid black; */
+}
+
+.d4{
+/*     
+    border: 1px solid black; */
+}
+.d5{
+    width: 550px;
+    /* border: 1px solid black; */
+}
+
+.granular span:first-child {
+	margin-right: 1em;
+}
