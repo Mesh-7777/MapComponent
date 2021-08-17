@@ -37,5 +37,7 @@ export const Db2 = {
        'Ladakh': Math.floor(Math.random() * 100) + 1  ,
        'Lakshadweep': Math.floor(Math.random() * 100) + 1  ,
        'Puducherry': Math.floor(Math.random() * 100) + 1,
-       "North and Middle Andaman": Math.floor(Math.random() * 100) + 1 
+       "North  & Middle Andaman": Math.floor(Math.random() * 100) + 1,
+       "Leh":Math.floor(Math.random() * 100) + 1,
+       "Jhajjar": Math.floor(Math.random() * 100) + 1
     } 

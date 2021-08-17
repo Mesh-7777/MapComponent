@@ -90,13 +90,9 @@ export default function DemographMap(){
               .attr("stroke","#101010")
               .attr("stroke-width","0.8");
 
-               var tooltip =svg.append("g")
-
-                      var bg =tooltip.append("rect")
-                      
-              
-                       
-                      var txt=tooltip.append("text").attr("x",250).attr("y",70).attr("font-weight","700").attr("font-size","25px")
+              var tooltip =svg.append("g")
+              var bg =tooltip.append("rect")   
+              var txt=tooltip.append("text").attr("x",250).attr("y",70).attr("font-weight","700").attr("font-size","25px")
       
                       states.attr("class",(d,i)=>{ return "mystate"+i})
       

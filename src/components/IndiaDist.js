@@ -5,6 +5,18 @@ import { select, scaleLinear } from "d3";
 import * as d3 from "d3";
 import { Db2 } from "./Db2";
 
+const COLOR_RANGE = [
+  '#ffedea',
+  '#ffcec5',
+  '#ffad9f',
+  '#ff8a75',
+  '#ff5533',
+  '#e2492d',
+  '#be3d26',
+  '#9a311f',
+  '#782618'
+];
+
 var jsondata = {
   India: { path: "/india.json", main_name: "india", name: "India" },
   "India-Dist": {
@@ -313,6 +325,7 @@ var jsondata = {
 function IndiaDist({ statename }) {
   console.log(statename);
   console.log(jsondata);
+  
   const data = Db2
   const projection = d3
     .geoMercator()
@@ -322,6 +335,13 @@ function IndiaDist({ statename }) {
 
   const [geographies, setGeographies] = useState([]);
 
+  const gradientData = {
+    fromColor: COLOR_RANGE[0],
+    toColor: COLOR_RANGE[COLOR_RANGE.length - 1],
+    min: 0,
+    max: geographies.reduce((max, item) => (item.value > max ? item.value : max), 0)
+  };
+console.log(geographies);
   useEffect(() => {
     settopojson(jsondata[statename]);
   }, [data]);
@@ -362,6 +382,7 @@ console.log(geographies)
 
       var colorScale = scaleLinear()
         .domain([100000000, 0])
+        //geographies.map((geo)=>{geo})
         .range(["#D4EEFF", "#0099FF"]);
 
       var svg = select(".mapsvg");
@@ -374,46 +395,44 @@ console.log(geographies)
 
       // create filter with id #drop-shadow
       // height=130% so that the shadow is not clipped
-      var filter = defs
-        .append("filter")
-        .attr("id", "drop-shadow")
-        .attr("height", "130%");
+      // var filter = defs
+      //   .append("filter")
+      //   .attr("id", "drop-shadow")
+      //   .attr("height", "130%");
 
       // SourceAlpha refers to opacity of graphic that this filter will be applied to
       // convolve that with a Gaussian with standard deviation 3 and store result
       // in blur
-      filter
-        .append("feGaussianBlur")
-        .attr("in", "SourceAlpha")
-        .attr("stdDeviation", 5)
-        .attr("result", "blur");
+      // filter
+      //   .append("feGaussianBlur")
+      //   .attr("in", "SourceAlpha")
+      //   .attr("stdDeviation", 5)
+      //   .attr("result", "blur");
 
       // translate output of Gaussian blur to the right and downwards with 2px
       // store result in offsetBlur
-      filter
-        .append("feOffset")
-        .attr("in", "blur")
-        .attr("dx", 5)
-        .attr("dy", 5)
-        .attr("result", "offsetBlur");
+      // filter
+      //   .append("feOffset")
+      //   .attr("in", "blur")
+      //   .attr("dx", 5)
+      //   .attr("dy", 5)
+      //   .attr("result", "offsetBlur");
 
       // overlay original SourceGraphic over translated blurred opacity by using
       // feMerge filter. Order of specifying inputs is important!
-      var feMerge = filter.append("feMerge");
+      // var feMerge = filter.append("feMerge");
 
-      feMerge.append("feMergeNode").attr("in", "offsetBlur");
-      feMerge.append("feMergeNode").attr("in", "SourceGraphic");
+      // feMerge.append("feMergeNode").attr("in", "offsetBlur");
+      // feMerge.append("feMergeNode").attr("in", "SourceGraphic");
       var mState = states
         .append("path")
         .attr("d", (d, i) => {
           return geoPath().projection(projection)(d);
         })
         .attr("fill", (d, i) => {
-          console.log(d)
           var mDistrict = d.properties.distname;
           var state = d.properties.statename;
-          if (data[state] != undefined) var ref = data[state][mDistrict];
-          console.log(mDistrict)
+          if (data[state] && data[mDistrict] ) var ref = data[state][mDistrict];
           if (typeof ref === "undefined") {
             return colorScale(0);
           }
@@ -425,37 +444,37 @@ console.log(geographies)
 
      
 
-      mState.attr("class", (d, i) => {
-        return "mystate" + i;
-      });
-      var tooltip = svg.append("g").attr("class", "ttip");
-      var bg = tooltip.append("rect");
-
-      var txt = tooltip.append("text").attr("x", 30).attr("y", 70);
+        var tooltip = svg.append("g");
+        var bg = tooltip.append("rect");
+  
+        var txt = tooltip.append("text").attr("x", 30).attr("y", 70);
+      mState.attr("class", (d, i) => { return "mystate" + i});
 
       mState
         .on("mouseover", (d, i, e) => {
-          console.log(d);
           bg.attr("x",250).attr("y",40).attr("width",320).attr("height",40).attr("fill","lightsteelblue")
-          select(".mapsvg").selectAll(".mystate"+i).attr("fill","#00c3ff")
           var mstate = d.properties.distname;
-          console.log(mstate)
+          var state = d.properties.statename;
+          select(".mapsvg").selectAll(".mystate"+i).attr("fill","#00c3ff")
           txt.text(mstate + " : " + data[mstate]);
           return tooltip.style("visibility", "visible");
         })
         .on("mouseout", (d, i, e) => {
           // var dist = d.properties.district;
           // select(".mapsvg").selectAll(".mystate"+i).attr("fill",(d)=>{
-          //   var mDistrict = d.properties.district
-          //   var state = d.properties.st_nm;
-          //   if(data[state]!=undefined)
-          //   {
-          //   var ref = data[state][mDistrict];
-          //   if(typeof(ref)==="undefined")
-          //   {return colorScale(0)}
+          //   var mDistrict = d.properties.distname;
+          //   var state = d.properties.statename;
+          //   console.log(mDistrict,state);
+          // //   if(data[state] != 'undefined')
+          // //   {
+          // //   var ref = data[state][mDistrict];
+          // //   console.log(ref);
+          // //   // if(typeof(ref)==="undefined")
+          // //   // {return colorScale(0)}
 
-          //    return colorScale(ref)
-          // }})
+          // //    return colorScale(ref)
+          // // }})
+          // })
           return tooltip.style("visibility", "hidden");
         })
         .on("mousemove", function (d) {
@@ -464,7 +483,7 @@ console.log(geographies)
             var val = "no data";
 
             val = data[dist];
-            txt.text(dist + ":" + val);
+            // txt.text(dist + ":" + val);
             bg.attr("x", 50)
               .attr("y", 70)
               .attr("width", 600)
@@ -480,7 +499,7 @@ console.log(geographies)
             var val = "no data";
 
             val = data[dist];
-            txt.text(dist + ":" + val);
+            // txt.text(dist + ":" + val);
             bg.attr("x", 50)
               .attr("y", 70)
               .attr("width", 200)
@@ -494,7 +513,7 @@ console.log(geographies)
           }
         })
         .on("click", (d) => {
-          console.log("clickedd"+ d.properties.district);
+          console.log("clickedd"+ d.properties.distname);
         });
     }
   }, [geographies, topojson]);
