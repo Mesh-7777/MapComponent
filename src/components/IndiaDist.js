@@ -1,21 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { geoEqualEarth, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
-import { select, scaleLinear } from "d3";
+import { select,scaleThreshold,zoom,event } from "d3";
 import * as d3 from "d3";
 import { Db2 } from "./Db2";
-
-const COLOR_RANGE = [
-  '#ffedea',
-  '#ffcec5',
-  '#ffad9f',
-  '#ff8a75',
-  '#ff5533',
-  '#e2492d',
-  '#be3d26',
-  '#9a311f',
-  '#782618'
-];
 
 var jsondata = {
   India: { path: "/india.json", main_name: "india", name: "India" },
@@ -322,28 +310,22 @@ var jsondata = {
   },
 };
 
-function IndiaDist({ statename }) {
-  console.log(statename);
+function IndiaDist({ stateName,colours }) {
+  console.log(stateName);
   console.log(jsondata);
   
   const data = Db2
   const projection = d3
     .geoMercator()
-    .scale(jsondata[statename]["z"])
-    .translate([jsondata[statename]["x"], jsondata[statename]["y"]]);
+    .scale(jsondata[stateName]["z"])
+    .translate([jsondata[stateName]["x"], jsondata[stateName]["y"]]);
   const [topojson, settopojson] = useState({});
 
   const [geographies, setGeographies] = useState([]);
+ 
 
-  const gradientData = {
-    fromColor: COLOR_RANGE[0],
-    toColor: COLOR_RANGE[COLOR_RANGE.length - 1],
-    min: 0,
-    max: geographies.reduce((max, item) => (item.value > max ? item.value : max), 0)
-  };
-console.log(geographies);
   useEffect(() => {
-    settopojson(jsondata[statename]);
+    settopojson(jsondata[stateName]);
   }, [data]);
 
   useEffect(() => {
@@ -380,105 +362,85 @@ console.log(geographies)
       //   }
       // }
 
-      var colorScale = scaleLinear()
-        .domain([100000000, 0])
-        //geographies.map((geo)=>{geo})
-        .range(["#D4EEFF", "#0099FF"]);
+      var color = d3.scaleThreshold()
+            .domain([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])
+            .range(colours);
+      var colorScale = scaleThreshold()
+        .domain([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])
+        .range(colours);
 
       var svg = select(".mapsvg");
-
-      svg.selectAll("*").remove();
+      const pathGenerator = d3.geoPath().projection(projection);
+      const g = svg.append("g")
+      svg.call(zoom().on('zoom',()=>{g.attr("transform", event.transform)}))
       var toptext = svg.append("text").attr("x", 200).attr("y", 30);
-      var states = svg.selectAll(".countries").data(geographies).enter();
-      // filters go in defs element
-      var defs = svg.append("defs");
-
-      // create filter with id #drop-shadow
-      // height=130% so that the shadow is not clipped
-      // var filter = defs
-      //   .append("filter")
-      //   .attr("id", "drop-shadow")
-      //   .attr("height", "130%");
-
-      // SourceAlpha refers to opacity of graphic that this filter will be applied to
-      // convolve that with a Gaussian with standard deviation 3 and store result
-      // in blur
-      // filter
-      //   .append("feGaussianBlur")
-      //   .attr("in", "SourceAlpha")
-      //   .attr("stdDeviation", 5)
-      //   .attr("result", "blur");
-
-      // translate output of Gaussian blur to the right and downwards with 2px
-      // store result in offsetBlur
-      // filter
-      //   .append("feOffset")
-      //   .attr("in", "blur")
-      //   .attr("dx", 5)
-      //   .attr("dy", 5)
-      //   .attr("result", "offsetBlur");
-
-      // overlay original SourceGraphic over translated blurred opacity by using
-      // feMerge filter. Order of specifying inputs is important!
-      // var feMerge = filter.append("feMerge");
-
-      // feMerge.append("feMergeNode").attr("in", "offsetBlur");
-      // feMerge.append("feMergeNode").attr("in", "SourceGraphic");
-      var mState = states
-        .append("path")
-        .attr("d", (d, i) => {
-          return geoPath().projection(projection)(d);
-        })
+      var states = g.selectAll(".contries").data(geographies).join("path")
+      .attr("d", (d, i) => pathGenerator(d))
+        // .attr("fill",(d,i)=>{ 
+        //   console.log(d)
+        //   var place = d.properties.statename
+        //   var val;
+        //   var ref = data[place][];
+         
+        //   if(!ref)
+        //    {
+         
+        //       return colorScale(0)
+        //    }
+        //   val = parseInt(data[place])
+        //   console.log(val)
+        //   return colorScale(val)
+        //   } )
         .attr("fill", (d, i) => {
-          var mDistrict = d.properties.distname;
-          var state = d.properties.statename;
-          if (data[state] && data[mDistrict] ) var ref = data[state][mDistrict];
-          if (typeof ref === "undefined") {
-            return colorScale(0);
-          }
-
-          return colorScale(ref);
+          
+          // var mDistrict = d.properties.distname;
+          // var state = d.properties.statecode;
+          // var ref = data[mDistrict];
+          // if (!ref) {
+          //   return color(0);
+          // }
+          // const val = parseInt(mDistrict);
+          // console.log(state)
+          // return color(val);
+          return color(Math.floor(Math.random() * 100))
         })
+        
         // .style("filter", "url(#drop-shadow)")
-        .attr("stroke", " black");
+        .attr("stroke", "black")
+        // .append("title").text((d,i)=>(d.properties.distname))
 
      
 
         var tooltip = svg.append("g");
         var bg = tooltip.append("rect");
   
-        var txt = tooltip.append("text").attr("x", 30).attr("y", 70);
-      mState.attr("class", (d, i) => { return "mystate" + i});
+        var txt=tooltip.append("text").attr("x",250).attr("y",70).attr("font-weight","700").attr("font-size","25px")
+      states.attr("class", (d, i) => { return "mystate" + i});
 
-      mState
+      states
         .on("mouseover", (d, i, e) => {
-          bg.attr("x",250).attr("y",40).attr("width",320).attr("height",40).attr("fill","lightsteelblue")
+          bg.attr("x",250).attr("y",40)
+          .attr("width",320).attr("height",40).attr("fill","lightsteelblue")
           var mstate = d.properties.distname;
           var state = d.properties.statename;
-          select(".mapsvg").selectAll(".mystate"+i).attr("fill","#00c3ff")
+          select(".mapsvg").selectAll(".mystate"+i).attr("fill","#4B3E46")
           txt.text(mstate + " : " + data[mstate]);
           return tooltip.style("visibility", "visible");
         })
         .on("mouseout", (d, i, e) => {
-          // var dist = d.properties.district;
-          // select(".mapsvg").selectAll(".mystate"+i).attr("fill",(d)=>{
-          //   var mDistrict = d.properties.distname;
-          //   var state = d.properties.statename;
-          //   console.log(mDistrict,state);
-          // //   if(data[state] != 'undefined')
-          // //   {
-          // //   var ref = data[state][mDistrict];
-          // //   console.log(ref);
-          // //   // if(typeof(ref)==="undefined")
-          // //   // {return colorScale(0)}
-
-          // //    return colorScale(ref)
-          // // }})
-          // })
+          select(".mapsvg").selectAll(".mystate"+i).attr("fill",(d)=>{
+            var place = d.properties.distname;
+            var val;
+            var ref = data[place];
+            if(!ref)
+             return color(0)
+            val = parseInt(data[place])
+            return color(val)
+            })
           return tooltip.style("visibility", "hidden");
         })
         .on("mousemove", function (d) {
-          if (statename === "India-Dist-sup") {
+          if (stateName === "India-Dist-sup") {
             var dist = d.properties.district;
             var val = "no data";
 
@@ -516,26 +478,18 @@ console.log(geographies)
           console.log("clickedd"+ d.properties.distname);
         });
     }
-  }, [geographies, topojson]);
+  }, [geographies, topojson, colours]);
 
   return (
     <div>
-      {statename !== "India-Dist-sup" ? (
+      {stateName !== "India-Dist-sup" ? (
         <svg
           viewBox="10 10 450 450"
           className="mapsvg"
           width={"35vw"}
-          filter="url(#f1)"
           height={"75vh"}
           style={{ backgroundColor: "white" }}
         >
-          <defs>
-            <filter id="f1" x="0" y="0" width="200%" height="200%">
-              <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
-              <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
-              <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-            </filter>
-          </defs>
           <g className="countries"> </g>
         </svg>
       ) : (
@@ -543,17 +497,10 @@ console.log(geographies)
           viewBox="10 10 1350 1350"
           className="mapsvg"
           width={"35vw"}
-          filter="url(#f1)"
+          
           height={"75vh"}
           style={{ backgroundColor: "white" }}
         >
-          <defs>
-            <filter id="f1" x="0" y="0" width="200%" height="200%">
-              <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
-              <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
-              <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
-            </filter>
-          </defs>
           <g className="countries"> </g>
         </svg>
       )}

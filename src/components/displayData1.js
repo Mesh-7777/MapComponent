@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Map from "./Map";
 import { Link } from "react-router-dom";
-
 import IndiaDist from "./IndiaDist";
 import "./../style/display.css";
+import LinearGradient from "./LinearGradient";
 
 // const url = "https://elastic.airesearch.in/demographics_v2_testing_mapping/_search";
 
@@ -21,9 +21,9 @@ export default function DisplayData({state}) {
     });
     setMapdata(statesdata);
   };
-
+console.log(state)
   return (
-    <>
+    <div>
       <div className="display_d">
         <div className="d2">
           {/* {!data ? "" :
@@ -52,19 +52,9 @@ export default function DisplayData({state}) {
               </span>
             </div>
           ) : null}
-          {state === "All India" ? (
-            granularity === "state" ? (
-              <Map data={mapdata} />
-            ) : (
-              <IndiaDist data={mapdata} statename="India-Dist-sup" />
-            )
-          ) : (
-            <div>
-              <IndiaDist data={mapdata} statename={state} />
-            </div>
-          )}
+          <LinearGradient data={mapdata} stateName={state} gran={granularity} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
